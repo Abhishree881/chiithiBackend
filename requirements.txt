@@ -1,0 +1,9 @@
+fastapi
+LeXmo
+firebase_admin
+requests
+nltk 
+pandas 
+typing
+matplotlib
+uvicorn
