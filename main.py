@@ -73,6 +73,6 @@ mood = moods[len(moods)-1]
 app = FastAPI()
 
 
-@app.get("/api")
+@app.get("/")
 def read_root():
-    return moods
+    return show
