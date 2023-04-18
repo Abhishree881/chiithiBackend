@@ -4,6 +4,7 @@ from firebase_admin import credentials
 import firebase_admin
 import requests
 from nltk.stem.snowball import SnowballStemmer
+from fastapi.middleware.cors import CORSMiddleware
 from nltk import word_tokenize
 import pandas as pd
 from fastapi import FastAPI
@@ -71,6 +72,10 @@ mood = moods[len(moods)-1]
 # print(moods[len(moods)-1])
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*']
+)
 
 
 @app.get("/api")
