@@ -7,6 +7,11 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 import threading
 import os
+import nltk
+nltk.download('punkt_tab')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('stopwords')
 
 load_dotenv()
 
