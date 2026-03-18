@@ -1,24 +1,25 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Dockerfile for the FastAPI backend (located in this folder)
 
-# Set environment variables
-# ENV PYTHONDONTWRITEBYTECODE 1
-# ENV PYTHONUNBUFFERED 1
+FROM python:3.11-slim
 
-# Set the working directory in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Copy the dependencies file to the working directory
-COPY requirements.txt .
-
-# Install any needed packages specified in requirements.txt
+# Install runtime dependencies
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code to the working directory
-COPY . .
+# Copy backend application code
+COPY . ./
 
-# Expose the port that FastAPI runs on
+# Download textblob corpora needed by NRCLex
+RUN python -m textblob.download_corpora
+
+# (Optional) Pre-download NLTK data used by the app. This avoids runtime downloads.
+RUN python -m nltk.downloader punkt averaged_perceptron_tagger stopwords
+
 EXPOSE 8000
 
-# Command to run the FastAPI application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

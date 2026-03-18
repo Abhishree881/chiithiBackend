@@ -4,8 +4,7 @@ import firebase_admin
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
+from nrclex import NRCLex
 import os
 import logging
 import nltk
@@ -20,10 +19,6 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Load emotion classification model and tokenizer
-tokenizer = AutoTokenizer.from_pretrained("j-hartmann/emotion-english-distilroberta-base")
-model = AutoModelForSequenceClassification.from_pretrained("j-hartmann/emotion-english-distilroberta-base")
 
 credentials_dict = {
     "type": "service_account",
@@ -57,12 +52,11 @@ def calculate_mood(messages):
         return {}
 
     try:
-        inputs = tokenizer(msg_data, return_tensors="pt", truncation=True, max_length=512)
-        outputs = model(**inputs)
-        probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
-        labels = model.config.id2label
-        emo_dict = {labels[i]: prob for i, prob in enumerate(probabilities[0].tolist()) if prob > 0.0}
-        return dict(sorted(emo_dict.items(), key=lambda item: item[1], reverse=True))
+        emo = NRCLex()
+        emo.load_raw_text(msg_data)
+        # affect_frequencies already provides normalized scores (0..1)
+        scores = emo.affect_frequencies
+        return {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True) if v > 0}
     except Exception as e:
         logger.error(f"Error calculating mood: {e}")
         return {}
